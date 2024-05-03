@@ -1,4 +1,4 @@
-from Bots import RandomBot, AlexPastorBot
+from Bots import RandomBot, AlexPastorBot, Version1
 from Classes.DevelopmentCards import DevelopmentCardsHand
 from Classes.Hand import Hand
 

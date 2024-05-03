@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Visualizador</title>
+
+
+    <!-- Stylesheets -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" href="CSS/general.css">
+    <link rel="stylesheet" href="CSS/game.css">
+
+    <!-- Scripts -->
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
+    <script src="https://kit.fontawesome.com/7c89af0f82.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <!-- APP -->
+    <div id="app">
+        <!-- Partida -->
+        <div class="row">
+            <div class="col-7">
+                <div class="row">
+                    <!-- Col Partida -->
+                    <div id="diceroll" style="position: absolute; z-index: 5; top: 10px; left: 30px;">Diceroll: 0</div>
+                    <div class="rounds" style="position: absolute; z-index: 5; top: 40px; left: 30px;">
+                        <span id="actual_round"></span>
+                        /
+                        <span id="rondas_maximas"></span>
+                    </div>
+                    <div class="col-12" style="padding-right: 0" id="gamefield_external">
+                        <div class="gamefield" id="gamefield">
+                            <div class="nodes">
+                                <div class="node" id="node_0" style="top: 97px; left: 184px;"></div>
+                                <div class="node" id="node_1" style="top: 75px; left: 232px;"></div>
+                                <div class="node" id="node_2" style="top: 97px; left: 282px;"></div>
+                                <div class="node" id="node_3" style="top: 75px; left: 330px;"></div>
+                                <div class="node" id="node_4" style="top: 97px; left: 379px;"></div>
+                                <div class="node" id="node_5" style="top: 75px; left: 428px;"></div>
+                                <div class="node" id="node_6" style="top: 97px; left: 477px;"></div>
+
+                                <div class="node" id="node_7" style="top: 184px; left: 138px;"></div>
+                                <div class="node" id="node_8" style="top: 157px; left: 184px;"></div>
+                                <div class="node" id="node_9" style="top: 184px; left: 234px;"></div>
+                                <div class="node" id="node_10" style="top: 157px; left: 282px;"></div>
+                                <div class="node" id="node_11" style="top: 184px; left: 334px;"></div>
+                                <div class="node" id="node_12" style="top: 157px; left: 379px;"></div>
+                                <div class="node" id="node_13" style="top: 184px; left: 432px;"></div>
+                                <div class="node" id="node_14" style="top: 157px; left: 477px;"></div>
+                                <div class="node" id="node_15" style="top: 184px; left: 530px;"></div>
+
+                                <div class="node" id="node_16" style="top: 270px; left: 86px;"></div>
+                                <div class="node" id="node_17" style="top: 247px; left: 138px;"></div>
+                                <div class="node" id="node_18" style="top: 270px; left: 184px;"></div>
+                                <div class="node" id="node_19" style="top: 247px; left: 232px;"></div>
+                                <div class="node" id="node_20" style="top: 270px; left: 282px;"></div>
+                                <div class="node" id="node_21" style="top: 247px; left: 330px;"></div>
+                                <div class="node" id="node_22" style="top: 270px; left: 379px;"></div>
+                                <div class="node" id="node_23" style="top: 247px; left: 428px;"></div>
+                                <div class="node" id="node_24" style="top: 270px; left: 477px;"></div>
+                                <div class="node" id="node_25" style="top: 247px; left: 530px;"></div>
+                                <div class="node" id="node_26" style="top: 270px; left: 578px;"></div>
+
+                                <div class="node" id="node_27" style="top: 330px; left: 86px;"></div>
+                                <div class="node" id="node_28" style="top: 355px; left: 138px;"></div>
+                                <div class="node" id="node_29" style="top: 330px; left: 184px;"></div>
+                                <div class="node" id="node_30" style="top: 355px; left: 234px;"></div>
+                                <div class="node" id="node_31" style="top: 330px; left: 282px;"></div>
+                                <div class="node" id="node_32" style="top: 355px; left: 334px;"></div>
+                                <div class="node" id="node_33" style="top: 330px; left: 379px;"></div>
+                                <div class="node" id="node_34" style="top: 355px; left: 432px;"></div>
+                                <div class="node" id="node_35" style="top: 330px; left: 477px;"></div>
+                                <div class="node" id="node_36" style="top: 355px; left: 530px;"></div>
+                                <div class="node" id="node_37" style="top: 330px; left: 578px;"></div>
+
+                                <div class="node" id="node_38" style="top: 419px; left: 138px;"></div>
+                                <div class="node" id="node_39" style="top: 442px; left: 184px;"></div>
+                                <div class="node" id="node_40" style="top: 419px; left: 232px;"></div>
+                                <div class="node" id="node_41" style="top: 442px; left: 282px;"></div>
+                                <div class="node" id="node_42" style="top: 419px; left: 330px;"></div>
+                                <div class="node" id="node_43" style="top: 442px; left: 379px;"></div>
+                                <div class="node" id="node_44" style="top: 419px; left: 428px;"></div>
+                                <div class="node" id="node_45" style="top: 442px; left: 477px;"></div>
+                                <div class="node" id="node_46" style="top: 419px; left: 530px;"></div>
+
+                                <div class="node" id="node_47" style="top: 502px; left: 184px;"></div>
+                                <div class="node" id="node_48" style="top: 529px; left: 234px;"></div>
+                                <div class="node" id="node_49" style="top: 502px; left: 282px;"></div>
+                                <div class="node" id="node_50" style="top: 529px; left: 334px;"></div>
+                                <div class="node" id="node_51" style="top: 502px; left: 379px;"></div>
+                                <div class="node" id="node_52" style="top: 529px; left: 432px;"></div>
+                                <div class="node" id="node_53" style="top: 502px; left: 477px;"></div>
+                            </div>
+
+                            <div class="roads">
+                                <div class="road first_row third_col left_road" id="road_0_1"></div>
+                                <div class="road first_row fourth_col right_road" id="road_1_2"></div>
+                                <div class="road first_row fifth_col left_road" id="road_2_3"></div>
+                                <div class="road first_row sixth_col right_road" id="road_3_4"></div>
+                                <div class="road first_row seventh_col left_road" id="road_4_5"></div>
+                                <div class="road first_row eighth_col right_road" id="road_5_6"></div>
+
+                                <div class="road vertical_road vertical_first_row vertical_third_col" id="road_0_8"></div>
+                                <div class="road vertical_road vertical_first_row vertical_fifth_col" id="road_2_10"></div>
+                                <div class="road vertical_road vertical_first_row vertical_seventh_col" id="road_4_12"></div>
+                                <div class="road vertical_road vertical_first_row vertical_ninth_col" id="road_6_14"></div>
+
+                                <div class="road second_row second_col left_road" id="road_7_8"></div>
+                                <div class="road second_row third_col right_road" id="road_8_9"></div>
+                                <div class="road second_row fourth_col left_road" id="road_9_10"></div>
+                                <div class="road second_row fifth_col right_road" id="road_10_11"></div>
+                                <div class="road second_row sixth_col left_road" id="road_11_12"></div>
+                                <div class="road second_row seventh_col right_road" id="road_12_13"></div>
+                                <div class="road second_row eighth_col left_road" id="road_13_14"></div>
+                                <div class="road second_row ninth_col right_road" id="road_14_15"></div>
+
+                                <div class="road vertical_road vertical_second_row vertical_second_col" id="road_7_17"></div>
+                                <div class="road vertical_road vertical_second_row vertical_fourth_col" id="road_9_19"></div>
+                                <div class="road vertical_road vertical_second_row vertical_sixth_col" id="road_11_21"></div>
+                                <div class="road vertical_road vertical_second_row vertical_eighth_col" id="road_13_23"></div>
+                                <div class="road vertical_road vertical_second_row vertical_tenth_col" id="road_15_25"></div>
+
+                                <div class="road third_row first_col left_road" id="road_16_17"></div>
+                                <div class="road third_row second_col right_road" id="road_17_18"></div>
+                                <div class="road third_row third_col left_road" id="road_18_19"></div>
+                                <div class="road third_row fourth_col right_road" id="road_19_20"></div>
+                                <div class="road third_row fifth_col left_road" id="road_20_21"></div>
+                                <div class="road third_row sixth_col right_road" id="road_21_22"></div>
+                                <div class="road third_row seventh_col left_road" id="road_22_23"></div>
+                                <div class="road third_row eighth_col right_road" id="road_23_24"></div>
+                                <div class="road third_row ninth_col left_road" id="road_24_25"></div>
+                                <div class="road third_row tenth_col right_road" id="road_25_26"></div>
+
+                                <div class="road vertical_road vertical_third_row vertical_first_col" id="road_16_27"></div>
+                                <div class="road vertical_road vertical_third_row vertical_third_col" id="road_18_29"></div>
+                                <div class="road vertical_road vertical_third_row vertical_fifth_col" id="road_20_31"></div>
+                                <div class="road vertical_road vertical_third_row vertical_seventh_col" id="road_22_33"></div>
+                                <div class="road vertical_road vertical_third_row vertical_ninth_col" id="road_24_35"></div>
+                                <div class="road vertical_road vertical_third_row vertical_eleventh_col" id="road_26_37"></div>
+
+                                <div class="road fourth_row first_col right_road" id="road_27_28"></div>
+                                <div class="road fourth_row second_col left_road" id="road_28_29"></div>
+                                <div class="road fourth_row third_col right_road" id="road_29_30"></div>
+                                <div class="road fourth_row fourth_col left_road" id="road_30_31"></div>
+                                <div class="road fourth_row fifth_col right_road" id="road_31_32"></div>
+                                <div class="road fourth_row sixth_col left_road" id="road_32_33"></div>
+                                <div class="road fourth_row seventh_col right_road" id="road_33_34"></div>
+                                <div class="road fourth_row eighth_col left_road" id="road_34_35"></div>
+                                <div class="road fourth_row ninth_col right_road" id="road_35_36"></div>
+                                <div class="road fourth_row tenth_col left_road" id="road_36_37"></div>
+
+                                <div class="road vertical_road vertical_fourth_row vertical_second_col" id="road_28_38"></div>
+                                <div class="road vertical_road vertical_fourth_row vertical_fourth_col" id="road_30_40"></div>
+                                <div class="road vertical_road vertical_fourth_row vertical_sixth_col" id="road_32_42"></div>
+                                <div class="road vertical_road vertical_fourth_row vertical_eighth_col" id="road_34_44"></div>
+                                <div class="road vertical_road vertical_fourth_row vertical_tenth_col" id="road_36_46"></div>
+
+                                <div class="road fifth_row second_col right_road" id="road_38_39"></div>
+                                <div class="road fifth_row third_col left_road" id="road_39_40"></div>
+                                <div class="road fifth_row fourth_col right_road" id="road_40_41"></div>
+                                <div class="road fifth_row fifth_col left_road" id="road_41_42"></div>
+                                <div class="road fifth_row sixth_col right_road" id="road_42_43"></div>
+                                <div class="road fifth_row seventh_col left_road" id="road_43_44"></div>
+                                <div class="road fifth_row eighth_col right_road" id="road_44_45"></div>
+                                <div class="road fifth_row ninth_col left_road" id="road_45_46"></div>
+
+                                <div class="road vertical_road vertical_fifth_row vertical_third_col" id="road_39_47"></div>
+                                <div class="road vertical_road vertical_fifth_row vertical_fifth_col" id="road_41_49"></div>
+                                <div class="road vertical_road vertical_fifth_row vertical_seventh_col" id="road_43_51"></div>
+                                <div class="road vertical_road vertical_fifth_row vertical_ninth_col" id="road_45_53"></div>
+
+                                <div class="road sixth_row third_col right_road" id="road_47_48"></div>
+                                <div class="road sixth_row fourth_col left_road" id="road_48_49"></div>
+                                <div class="road sixth_row fifth_col right_road" id="road_49_50"></div>
+                                <div class="road sixth_row sixth_col left_road" id="road_50_51"></div>
+                                <div class="road sixth_row seventh_col right_road" id="road_51_52"></div>
+                                <div class="road sixth_row eighth_col left_road" id="road_52_53"></div>
+                            </div>
+
+                            <div class="terrain_pieces" id="terrain_pieces">
+                                <div class="terrain top_terrain"></div>
+                                <div class="terrain top_terrain"></div>
+                                <div class="terrain top_terrain"></div>
+                                <div class="terrain top_terrain"></div>
+                                <div class="terrain top_terrain"></div>
+                                <div class="terrain top_terrain"></div>
+                                <div class="terrain top_terrain"></div>
+                                <div class="terrain top_terrain"></div>
+                                <br>
+
+                                <div class="terrain"></div>
+                                <div class="terrain"></div>
+                                <div class="terrain terrain_wood" id="terrain_0">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_wool" id="terrain_1">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_cereal" id="terrain_2">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain"></div>
+                                <div class="terrain"></div>
+                                <br>
+
+                                <div class="terrain"></div>
+                                <div class="terrain"></div>
+                                <div class="terrain terrain_clay" id="terrain_3">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_mineral" id="terrain_4">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_clay" id="terrain_5">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_wool" id="terrain_6">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain"></div>
+                                <div class="terrain"></div>
+                                <br>
+
+                                <div class="terrain"></div>
+                                <div class="terrain terrain_desert" id="terrain_7">
+                                    <div class="terrain_number">
+                                        <i class="fa-solid fa-user-ninja fa-2x" data-toggle="tooltip" data-placement="top" title="Ladrón"></i>
+                                    </div>
+                                </div>
+                                <div class="terrain terrain_wood" id="terrain_8">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_cereal" id="terrain_9">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_wood" id="terrain_10">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_cereal" id="terrain_11">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain"></div>
+                                <br>
+
+                                <div class="terrain"></div>
+                                <div class="terrain"></div>
+                                <div class="terrain terrain_clay" id="terrain_12">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_wool" id="terrain_13">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_wool" id="terrain_14">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_mineral" id="terrain_15">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain"></div>
+                                <div class="terrain"></div>
+                                <br>
+
+                                <div class="terrain"></div>
+                                <div class="terrain"></div>
+                                <div class="terrain terrain_mineral" id="terrain_16">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_cereal" id="terrain_17">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain terrain_wood" id="terrain_18">
+                                    <div class="terrain_number"></div>
+                                </div>
+                                <div class="terrain"></div>
+                                <div class="terrain"></div>
+                                <br>
+
+                                <div class="terrain bottom_terrain"></div>
+                                <div class="terrain bottom_terrain"></div>
+                                <div class="terrain bottom_terrain"></div>
+                                <div class="terrain bottom_terrain"></div>
+                                <div class="terrain bottom_terrain"></div>
+                                <div class="terrain bottom_terrain"></div>
+                                <div class="terrain bottom_terrain"></div>
+                                <div class="terrain bottom_terrain"></div>
+                            </div>
+
+                            <!--                    <img src="./Images/mapa.png" style="height: 57vh; margin-top: 5em" alt="Juego del Catan">-->
+                        </div>
+                    </div> <!-- div.col-6 -->
+                </div> <!-- div.row -->
+                <!-- Controles -->
+                <div class="row" id="controles">
+                    <div class="col-1"></div>
+                    <div class="col-2 text-center">
+                        <div class="btn btn-secondary" id="ronda_previa_btn" data-toggle="tooltip" data-placement="top" title="Ronda anterior"><i class="fa-solid fa-angles-left"></i></div>
+                    </div>
+                    <div class="col-1 text-center">
+                        <div class="btn btn-secondary" id="turno_previo_btn" data-toggle="tooltip" data-placement="top" title="Turno anterior"><i class="fa-solid fa-angle-left"></i></div>
+                    </div>
+                    <div class="col-1 text-center">
+                        <div class="btn btn-secondary" id="fase_previa_btn" data-toggle="tooltip" data-placement="top" title="Fase anterior"><i class="fa-solid fa-backward-step"></i></div>
+                    </div>
+                    <div class="col text-center">
+                        <input type="number" class="form-control" id="contador_rondas" style="/*display: inline-block*/; width: 100px; display: none;">
+                        <input type="number" class="form-control" id="contador_turnos" style="display: none">
+                        <input type="number" class="form-control" id="contador_fases" style="display: none">
+
+                        <div class="btn btn-secondary" id="play_btn" data-toggle="tooltip" data-placement="top" title="Play"><i class="fa-solid fa-play"></i></div>
+
+                        <input type="range" min="10" max="1000" value="25" class="slider" id="millis_for_play" style="width: 50px;">
+                        <span id="millis_seleccionados"></span>
+
+                    </div>
+                    <div class="col-1 text-center">
+                        <div class="btn btn-secondary" id="fase_siguiente_btn" data-toggle="tooltip" data-placement="top" title="Fase siguiente"><i class="fa-solid fa-forward-step"></i></div>
+                    </div>
+                    <div class="col-1 text-center">
+                        <div class="btn btn-secondary" id="turno_siguiente_btn" data-toggle="tooltip" data-placement="top" title="Turno siguiente"><i class="fa-solid fa-angle-right"></i></div>
+                    </div>
+                    <div class="col-2 text-center">
+                        <div class="btn btn-secondary" id="ronda_siguiente_btn" data-toggle="tooltip" data-placement="top" title="Ronda siguiente"><i class="fa-solid fa-angles-right"></i></div>
+                    </div>
+                    <div class="col-1 dropup">
+                        <div class="btn btn-secondary " id="menu_btn" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                        <ul class="dropdown-menu" aria-labelledby="menu_btn">
+                            <!--                            <li><a class="dropdown-item" href="#" id="choose_phase">Elegir fase</a></li>-->
+                            <!--                            <li><a class="dropdown-item" href="#" id="choose_turn">Elegir turno</a></li>-->
+                            <!--                            <li><a class="dropdown-item" href="#" id="choose_round">Elegir ronda</a></li>-->
+                            <li><a class="dropdown-item" href="#" id="load_game">Cargar partida</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Log -->
+            <div class="col log">
+                <div id="commerce_log" style="height: 50vh">
+                    <div id="commerce_log_title">Comercios</div>
+                    <div id="commerce_log_text" style="height: 45vh/**height: -webkit-fill-available*/"></div>
+                </div>
+                <div id="other_useful_info">
+                    <div id="other_useful_info_title">Otra información útil</div>
+                    <div id="other_useful_info_text"></div>
+                </div>
+                <input type="file" id="get_file" accept=".json" style="display: none;">
+            </div>
+        </div> <!-- fin partida -->
+
+        <div class="row">
+            <div class="col-12" style="border-top: 3px solid black;">
+                <!-- Col Jugadores -->
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row player">
+                            <div style="background: lightcoral; border: 5px solid lightcoral" class="playerprofile col" id="P0">
+                                <div class="row">
+                                    <div class="col">
+                                        <!--                                    <img src="Images/nouser.png" alt="No user" height="80px">-->
+                                        <h1>J1</h1>
+                                        <h3 id="puntos_victoria_J1"></h3>
+                                        <!--                        <textarea class="buildings_textarea" id="buildings_P1" style="width: 100%"></textarea>-->
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="largest_army col-2" style="display: inline-block;">
+                                        <i class="fa-solid fa-person-military-rifle fa-2x" data-toggle="tooltip" data-placement="top" title="Mayor ejercito"></i>
+                                    </div>
+                                    <div class="longest_road col-2" style="display: inline-block;">
+                                        <i class="fa-solid fa-ruler-horizontal fa-2x" data-toggle="tooltip" data-placement="top" title="Carretera más larga"></i>
+                                    </div>
+                                    <div class="col"></div>
+                                </div>
+                            </div>
+                            <div id="hand_P0" class="hand text-center col-7">
+                                <div class="row top_hand_row">
+                                    <div class="cereal col ms-3 me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-wheat-awn" data-toggle="tooltip" data-placement="top" title="Cereal"></i>
+                                        <span>: </span>
+                                        <span class="cereal_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="clay col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-trowel-bricks" data-toggle="tooltip" data-placement="top" title="Ladrillos"></i>
+                                        <span>: </span>
+                                        <span class="clay_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="wool col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-brands fa-cotton-bureau" data-toggle="tooltip" data-placement="top" title="Lana"></i>
+                                        <span>: </span>
+                                        <span class="wool_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="wood col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-wand-sparkles" data-toggle="tooltip" data-placement="top" title="Madera"></i>
+                                        <span>: </span>
+                                        <span class="wood_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="mineral col me-3 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-mountain-sun" data-toggle="tooltip" data-placement="top" title="Mineral"></i>
+                                        <span>: </span>
+                                        <span class="mineral_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                </div>
+                                <div class="row bottom_hand_row">
+                                    <div class="knight col ms-3 me-1 px-1" data-id="knight" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-chess-knight" data-toggle="tooltip" data-placement="top" title="Caballero"></i>
+                                        <span>: </span>
+                                        <span class="knight_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="victory_point col me-1 px-1" data-id="victory_point" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-trophy" data-toggle="tooltip" data-placement="top" title="Puntos de victoria"></i>
+                                        <span>: </span>
+                                        <span class="victory_point_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="road_building col me-1 px-1" data-id="road_building" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-road" data-toggle="tooltip" data-placement="top" title="Construcción de carreteras"></i>
+                                        <span>: </span>
+                                        <span class="road_building_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="year_of_plenty col me-1 px-1" data-id="year_of_plenty" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-regular fa-calendar-days" data-toggle="tooltip" data-placement="top" title="Año de cosecha"></i>
+                                        <span>: </span>
+                                        <span class="year_of_plenty_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="monopoly col me-3 px-1" data-id="monopoly" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-hand-holding-dollar" data-toggle="tooltip" data-placement="top" title="Monopolio"></i>
+                                        <span>: </span>
+                                        <span class="monopoly_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row player">
+                            <div style="background: lightblue; border: 5px solid lightblue" class="playerprofile col" id="P1">
+                                <div class="row">
+                                    <div class="col">
+                                        <!--                                <img src="Images/nouser.png" alt="No user" height="80px">-->
+                                        <h1>J2</h1>
+                                        <h3 id="puntos_victoria_J2"></h3>
+                                        <!--                    <textarea class="buildings_textarea" id="buildings_P2" style="width: 100%"></textarea>-->
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="largest_army col-2" style="display: inline-block;">
+                                        <i class="fa-solid fa-person-military-rifle fa-2x" data-toggle="tooltip" data-placement="top" title="Mayor ejercito"></i>
+                                    </div>
+                                    <div class="longest_road col-2" style="display: inline-block;">
+                                        <i class="fa-solid fa-ruler-horizontal fa-2x" data-toggle="tooltip" data-placement="top" title="Carretera más larga"></i>
+                                    </div>
+                                    <div class="col"></div>
+                                </div>
+                            </div>
+                            <div id="hand_P1" class="hand text-center col-7">
+                                <div class="row top_hand_row">
+                                    <div class="cereal col ms-3 me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-wheat-awn" data-toggle="tooltip" data-placement="top" title="Cereal"></i>
+                                        <span>: </span>
+                                        <span class="cereal_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="clay col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-trowel-bricks" data-toggle="tooltip" data-placement="top" title="Ladrillos"></i>
+                                        <span>: </span>
+                                        <span class="clay_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="wool col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-brands fa-cotton-bureau" data-toggle="tooltip" data-placement="top" title="Lana"></i>
+                                        <span>: </span>
+                                        <span class="wool_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="wood col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-wand-sparkles" data-toggle="tooltip" data-placement="top" title="Madera"></i>
+                                        <span>: </span>
+                                        <span class="wood_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="mineral col me-3 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-mountain-sun" data-toggle="tooltip" data-placement="top" title="Mineral"></i>
+                                        <span>: </span>
+                                        <span class="mineral_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                </div>
+                                <div class="row bottom_hand_row">
+                                    <div class="knight col ms-3 me-1 px-1" data-id="knight" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-chess-knight" data-toggle="tooltip" data-placement="top" title="Caballero"></i>
+                                        <span>: </span>
+                                        <span class="knight_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="victory_point col me-1 px-1" data-id="victory_point" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-trophy" data-toggle="tooltip" data-placement="top" title="Puntos de victoria"></i>
+                                        <span>: </span>
+                                        <span class="victory_point_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="road_building col me-1 px-1" data-id="road_building" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-road" data-toggle="tooltip" data-placement="top" title="Construcción de carreteras"></i>
+                                        <span>: </span>
+                                        <span class="road_building_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="year_of_plenty col me-1 px-1" data-id="year_of_plenty" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-regular fa-calendar-days" data-toggle="tooltip" data-placement="top" title="Año de cosecha"></i>
+                                        <span>: </span>
+                                        <span class="year_of_plenty_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="monopoly col me-3 px-1" data-id="monopoly" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-hand-holding-dollar" data-toggle="tooltip" data-placement="top" title="Monopolio"></i>
+                                        <span>: </span>
+                                        <span class="monopoly_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Col Jugadores -->
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row player">
+                            <div style="background: lightgreen; border: 5px solid lightgreen" class="playerprofile col" id="P2">
+                                <div class="row">
+                                    <div class="col">
+                                        <!--                                <img src="Images/nouser.png" alt="No user" height="80px">-->
+                                        <h1>J3</h1>
+                                        <h3 id="puntos_victoria_J3"></h3>
+                                        <!--                                <textarea class="buildings_textarea" id="buildings_P3" style="width: 100%"></textarea>-->
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="largest_army col-2" style="display: inline-block;">
+                                        <i class="fa-solid fa-person-military-rifle fa-2x" data-toggle="tooltip" data-placement="top" title="Mayor ejercito"></i>
+                                    </div>
+                                    <div class="longest_road col-2" style="display: inline-block;">
+                                        <i class="fa-solid fa-ruler-horizontal fa-2x" data-toggle="tooltip" data-placement="top" title="Carretera más larga"></i>
+                                    </div>
+                                    <div class="col"></div>
+                                </div>
+                            </div>
+                            <div id="hand_P2" class="hand text-center col-7">
+                                <div class="row top_hand_row">
+                                    <div class="cereal col ms-3 me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-wheat-awn" data-toggle="tooltip" data-placement="top" title="Cereal"></i>
+                                        <span>: </span>
+                                        <span class="cereal_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="clay col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-trowel-bricks" data-toggle="tooltip" data-placement="top" title="Ladrillos"></i>
+                                        <span>: </span>
+                                        <span class="clay_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="wool col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-brands fa-cotton-bureau" data-toggle="tooltip" data-placement="top" title="Lana"></i>
+                                        <span>: </span>
+                                        <span class="wool_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="wood col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-wand-sparkles" data-toggle="tooltip" data-placement="top" title="Madera"></i>
+                                        <span>: </span>
+                                        <span class="wood_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                    <div class="mineral col me-3 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-mountain-sun" data-toggle="tooltip" data-placement="top" title="Mineral"></i>
+                                        <span>: </span>
+                                        <span class="mineral_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                </div>
+                                <div class="row bottom_hand_row">
+                                    <div class="knight col ms-3 me-1 px-1" data-id="knight" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-chess-knight" data-toggle="tooltip" data-placement="top" title="Caballero"></i>
+                                        <span>: </span>
+                                        <span class="knight_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="victory_point col me-1 px-1" data-id="victory_point" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-trophy" data-toggle="tooltip" data-placement="top" title="Puntos de victoria"></i>
+                                        <span>: </span>
+                                        <span class="victory_point_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="road_building col me-1 px-1" data-id="road_building" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-road" data-toggle="tooltip" data-placement="top" title="Construcción de carreteras"></i>
+                                        <span>: </span>
+                                        <span class="road_building_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="year_of_plenty col me-1 px-1" data-id="year_of_plenty" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-regular fa-calendar-days" data-toggle="tooltip" data-placement="top" title="Año de cosecha"></i>
+                                        <span>: </span>
+                                        <span class="year_of_plenty_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="monopoly col me-3 px-1" data-id="monopoly" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-hand-holding-dollar" data-toggle="tooltip" data-placement="top" title="Monopolio"></i>
+                                        <span>: </span>
+                                        <span class="monopoly_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row player">
+                            <div style="background: lightyellow; border: 5px solid lightyellow" class="playerprofile col" id="P3">
+
+                                <div class="row">
+                                    <div class="col">
+                                        <!--                                <img src="Images/nouser.png" alt="No user" height="80px">-->
+                                        <h1>J4</h1>
+                                        <h3 id="puntos_victoria_J4">3</h3>
+                                        <!--                    <textarea class="buildings_textarea" id="buildings_P4" style="width: 100%"></textarea>-->
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="largest_army col-2" style="display: inline-block;">
+                                        <i class="fa-solid fa-person-military-rifle fa-2x" data-toggle="tooltip" data-placement="top" title="Mayor ejercito"></i>
+                                    </div>
+                                    <div class="longest_road col-2" style="display: inline-block;">
+                                        <i class="fa-solid fa-ruler-horizontal fa-2x" data-toggle="tooltip" data-placement="top" title="Carretera más larga"></i>
+                                    </div>
+                                    <div class="col"></div>
+                                </div>
+                            </div>
+                            <div id="hand_P3" class="hand text-center col-7">
+                                <div class="row top_hand_row">
+                                    <div class="cereal col ms-3 me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-wheat-awn" data-toggle="tooltip" data-placement="top" title="Cereal"></i>
+                                        <span>: </span>
+                                        <span class="cereal_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="clay col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-trowel-bricks" data-toggle="tooltip" data-placement="top" title="Ladrillos"></i>
+                                        <span>: </span>
+                                        <span class="clay_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="wool col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-brands fa-cotton-bureau" data-toggle="tooltip" data-placement="top" title="Lana"></i>
+                                        <span>: </span>
+                                        <span class="wool_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="wood col me-1 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-wand-sparkles" data-toggle="tooltip" data-placement="top" title="Madera"></i>
+                                        <span>: </span>
+                                        <span class="wood_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="mineral col me-3 px-1" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-mountain-sun" data-toggle="tooltip" data-placement="top" title="Mineral"></i>
+                                        <span>: </span>
+                                        <span class="mineral_quantity">0</span>
+                                        <i class="fa-solid increment fa-solid"></i>
+                                    </div>
+                                </div>
+                                <div class="row bottom_hand_row">
+                                    <div class="knight col ms-3 me-1 px-1" data-id="knight" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-chess-knight" data-toggle="tooltip" data-placement="top" title="Caballero"></i>
+                                        <span>: </span>
+                                        <span class="knight_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="victory_point col me-1 px-1" data-id="victory_point" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-trophy" data-toggle="tooltip" data-placement="top" title="Puntos de victoria"></i>
+                                        <span>: </span>
+                                        <span class="victory_point_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="road_building col me-1 px-1" data-id="road_building" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-road" data-toggle="tooltip" data-placement="top" title="Construcción de carreteras"></i>
+                                        <span>: </span>
+                                        <span class="road_building_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="year_of_plenty col me-1 px-1" data-id="year_of_plenty" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-regular fa-calendar-days" data-toggle="tooltip" data-placement="top" title="Año de cosecha"></i>
+                                        <span>: </span>
+                                        <span class="year_of_plenty_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                    <div class="monopoly col me-3 px-1" data-id="monopoly" style="border-right: 1px solid black; border-left: 1px solid black;">
+                                        <i class="fa-solid fa-hand-holding-dollar" data-toggle="tooltip" data-placement="top" title="Monopolio"></i>
+                                        <span>: </span>
+                                        <span class="monopoly_quantity">0</span>
+                                        <i class="increment fa-solid"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./JS/general.js"></script>
+    <!--
+    <script type="text/javascript">
+        
+    </script>
+-->
+</body>
+
+</html>
