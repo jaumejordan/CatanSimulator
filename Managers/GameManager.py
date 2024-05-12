@@ -734,7 +734,6 @@ class GameManager:
         :param player_id: int
         :return: DevelopmentCard, None
         """
-        print(self.bot_manager.players[player_id]['resources'])
         return self.bot_manager.players[player_id]['player'].on_turn_end()
 
     def call_to_bot_on_commerce_phase(self, player_id):
