@@ -107,13 +107,12 @@ class GameManager:
 
         receivers = self.bot_manager.players.copy()
         giver = receivers.pop(self.turn_manager.whose_turn_is_it)
-
         # Se aleatorizan el orden en el que se va a recibir la oferta para evitar que J1 tenga ventaja
         random.shuffle(receivers)
 
         for receiver in receivers:
             on_tradeoffer_response = []
-
+            self.call_to_bot_notify_other_hand(receiver["id"], giver["id"]) #Notify everybody about my hand to negotiate
             count = 1
             offer = True
             while offer:
@@ -735,6 +734,7 @@ class GameManager:
         :param player_id: int
         :return: DevelopmentCard, None
         """
+        print(self.bot_manager.players[player_id]['resources'])
         return self.bot_manager.players[player_id]['player'].on_turn_end()
 
     def call_to_bot_on_commerce_phase(self, player_id):
@@ -922,3 +922,7 @@ class GameManager:
         else:
             build_phase_object['building'] = 'None'
             return build_phase_object, winner
+
+    def call_to_bot_notify_other_hand(self, player_id, other_player_id):
+        hand = self.bot_manager.players[other_player_id]['resources']
+        self.bot_manager.players[player_id]['player'].update_hand_from_a_given_player_id(other_player_id, hand)

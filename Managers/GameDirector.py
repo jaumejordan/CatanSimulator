@@ -33,6 +33,10 @@ class GameDirector:
 
         self.game_manager.set_phase(0)
         self.game_manager.set_actual_player(player)
+        
+        for other_player in range(4):
+            if player != other_player:
+                self.game_manager.call_to_bot_notify_other_hand(player, other_player)
 
         turn_start_response = self.game_manager.call_to_bot_on_turn_start(player)
 
@@ -95,6 +99,7 @@ class GameDirector:
             if self.game_manager.get_longest_road()['player'] != -1:
                 self.game_manager.get_players()[self.game_manager.get_longest_road()['player']]['longest_road'] = 1
                 self.game_manager.get_players()[self.game_manager.get_longest_road()['player']]['victory_points'] += 2
+            
 
         vp = {}
         for i in range(4):
