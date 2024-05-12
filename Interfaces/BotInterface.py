@@ -113,3 +113,6 @@ class BotInterface:
         :return: {'material': int, 'material_2': int}
         """
         return None
+
+    def update_hand_from_a_given_player_id(self, player_id: int, player_hand: Hand):
+        pass

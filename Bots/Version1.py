@@ -3,6 +3,7 @@ import random
 from Classes.Constants import *
 from Classes.Materials import Materials
 from Classes.TradeOffer import TradeOffer
+from Classes.Hand import Hand
 from Interfaces.BotInterface import BotInterface
 
 
@@ -10,6 +11,12 @@ class Version1(BotInterface):
     """
     Es necesario poner super().nombre_de_funcion() para asegurarse de que coge la función del padre
     """
+    player_hand_of_each_player = {
+        0: Hand(),
+        1: Hand(),
+        2: Hand(),
+        3: Hand()
+    }
     town_number = 0
     material_given_more_than_three = None
     # Son los materiales más necesarios en construcciones, luego se piden con year of plenty para tener en mano
@@ -300,6 +307,9 @@ class Version1(BotInterface):
         # Elige el material que más haya intercambiado (variable global de esta clase)
         return self.material_given_more_than_three
 
+    def update_hand_from_a_given_player_id(self, player_id: int, player_hand: Hand):
+        self.player_hand_of_each_player[player_id] = player_hand
+    
     # noinspection DuplicatedCode
     def on_road_building_card_use(self):
         # Elige dos carreteras aleatorias entre las opciones
