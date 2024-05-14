@@ -43,15 +43,38 @@ class Version1(BotInterface):
     def on_turn_start(self):
         # Si tiene mano de cartas de desarrollo
         if len(self.development_cards_hand.check_hand()):
-            # Mira todas las cartas
-            for i in range(0, len(self.development_cards_hand.check_hand())):
-                # Si una es un caballero
-                #Añadir comprobacion de solo jugarla si el ladron esta en tu territorio, o si está pero tienes más de 1 caballero o si con ello ganas. 
-                if self.development_cards_hand.hand[i].type == DevelopmentCardConstants.KNIGHT:
-                    # La juega
-                    return self.development_cards_hand.select_card_by_id(self.development_cards_hand.hand[i].id)
+
+            knight_cards_id = [card.id for card in self.development_Cards_hand if card.type == DevelopmentCardConstants.KNIGHT]
+
+            if len(knight_cards_id) > 0:
+                # Mirar mis casillas
+                selected_knight_cards_id = random.random(knight_cards_id)
+
+                #Si solo tenemos una carta de caballero
+                if len(knight_cards_id) == 1:
+                    if not self.check_thief_is_in_one_of_my_terrains():
+                        return None
+
+                #Sacar la compra objetivo
+                #Sacar el recurso que más necesito
+                #
+                #Else
+                return self.development_cards_hand.select_card_by_id(selected_knight_cards_id)
+
+            
         return None
 
+    def check_thief_is_in_one_of_my_terrains(self):
+        #Todos nuestros nodos
+        player_nodes = [node for node in self.board.nodes if node["player"] == self.id]
+        #Todos nuestros terrenos
+        player_terrains = []
+        for node in player_nodes:
+            player_terrains.extend(self.board.__get_contacting_terrain__(node["id"]))
+        
+        #si el ladrón está en alguno de nuestros terrenos
+        return any([terrain["has_thief"] for terrain in player_terrains])
+    
     def on_having_more_than_7_materials_when_thief_is_called(self):
         # Comprueba si tiene materiales para construir una ciudad. Si los tiene, descarta el resto que no le sirvan.
         if self.hand.resources.has_this_more_materials(BuildConstants.CITY):
@@ -408,3 +431,31 @@ class Version1(BotInterface):
                 bestScore = score
                 bestNode = node
         return bestNode
+    
+
+    def materialesNecesarios(self, buildConstant):
+        if isinstance(materials, str):
+            if materials == 'town':
+                    materials = Materials(1, 0, 1, 1, 1)
+            elif materials == 'city':
+                    materials = Materials(2, 3, 0, 0, 0)
+            elif materials == 'road':
+                    materials = Materials(0, 0, 1, 1, 0)
+            elif materials == 'card':
+                    materials = Materials(1, 1, 0, 0, 1)
+            else:
+                return False
+            arrayObjetivo = buildConstant.array_ids #Puede ser que sea necesario crear un getArrayids
+            arrayActual = self.hand.array_ids
+            diff = [0,0,0,0,0]
+            totalDiff = 0
+            step = 0
+            i = 0
+
+            for i in range(len(arrayObjetivo)):
+                step = arrayActual[i] - arrayObjetivo[i]
+                diff[i] = step
+                if step<0:
+                    totalDiff = totalDiff + step
+            
+            return -totalDiff, Materials(diff[0], diff[1], diff[2], diff[3], diff[4])
