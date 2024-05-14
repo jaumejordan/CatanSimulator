@@ -38,6 +38,7 @@ class Version1(BotInterface):
             # Mira todas las cartas
             for i in range(0, len(self.development_cards_hand.check_hand())):
                 # Si una es un caballero
+                #Añadir comprobacion de solo jugarla si el ladron esta en tu territorio, o si está pero tienes más de 1 caballero o si con ello ganas. 
                 if self.development_cards_hand.hand[i].type == DevelopmentCardConstants.KNIGHT:
                     # La juega
                     return self.development_cards_hand.select_card_by_id(self.development_cards_hand.hand[i].id)
