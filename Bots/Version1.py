@@ -302,7 +302,7 @@ class Version1(BotInterface):
                 bestNode = node_id
         possible_roads = self.board.nodes[bestNode]['adjacent']
     
-        return node_id, possible_roads[random.randint(0, len(possible_roads) - 1)]
+        return bestNode, possible_roads[random.randint(0, len(possible_roads) - 1)]
 
     def on_monopoly_card_use(self):
         # Elige el material que más haya intercambiado (variable global de esta clase)
