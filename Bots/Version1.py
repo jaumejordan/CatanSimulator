@@ -295,7 +295,8 @@ class Version1(BotInterface):
         # Plantar en la casilla de más valor disponible 
         self.board = board_instance
         possibilities = self.board.valid_starting_nodes()
-        bestNode = self.__getBestScoreNode__([0,0,0,0,0],possibilities)
+        currentArrayTerrain = self.__CR__(self.board.nodes)[self.id]
+        bestNode = self.__getBestScoreNode__(currentArrayTerrain,possibilities)
         possible_roads = self.board.nodes[bestNode]['adjacent']
     
         return bestNode, possible_roads[random.randint(0, len(possible_roads) - 1)]
@@ -366,7 +367,7 @@ class Version1(BotInterface):
         for node in nodes:
             if node['player'] >= 0:
                 arrayPlayer = playersArrays[node['player']]
-                terrains = self.board.__get_contacting_terrain__(node)
+                terrains = self.board.__get_contacting_terrain__(node["id"])
                 nodeProb=0
                 arrayTypes = [0,0,0,0,0]
                 for terrain in terrains:
@@ -396,7 +397,7 @@ class Version1(BotInterface):
         bestScore = 0
         bestNode = -1
         for node in nodes:
-            terrains = self.board.__get_contacting_terrain__( node)
+            terrains = self.board.__get_contacting_terrain__(node)
             nodeProb=0
             arrayTypes = [0,0,0,0,0]
             for terrain in terrains:
