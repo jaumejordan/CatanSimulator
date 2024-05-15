@@ -59,7 +59,6 @@ class Version1(BotInterface):
                 
                 return self.development_cards_hand.select_card_by_id(selected_knight_cards_id)
 
-            
         return None
     
     def get_max_material_for_compra_objetivo(self, compra_objetivo):
