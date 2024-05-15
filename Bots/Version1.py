@@ -302,7 +302,7 @@ class Version1(BotInterface):
                 bestNode = node_id
         possible_roads = self.board.nodes[bestNode]['adjacent']
     
-        return node_id, possible_roads[random.randint(0, len(possible_roads) - 1)]
+        return bestNode, possible_roads[random.randint(0, len(possible_roads) - 1)]
 
     def on_monopoly_card_use(self):
         # Elige el material que más haya intercambiado (variable global de esta clase)
@@ -344,7 +344,7 @@ class Version1(BotInterface):
             terrains = self.board.__get_contacting_terrain__( node)
             nodeProb=0
             for terrain in terrains:
-                nodeProb = nodeProb + self.board.__get_probability__(terrain)
+                nodeProb = nodeProb + self.__CalculateProb__(self.board.__get_probability__(terrain))
             dictNode[node]=nodeProb
         return dictNode
     
@@ -356,7 +356,7 @@ class Version1(BotInterface):
             arrayTypes = [0,0,0,0,0]
             for terrain in terrains:
                 terrainType = self.terrain_constants.__get_terrain_type__(terrain_id)
-                arrayTypes[terrainType] = arrayTypes[terrainType] + self.board.__get_probability__(terrain)
+                arrayTypes[terrainType] = arrayTypes[terrainType] + self.__CalculateProb__(self.board.__get_probability__(terrain))
             dictNode[node]=arrayTypes
         return dictNode
        
@@ -368,21 +368,30 @@ class Version1(BotInterface):
             dictNode = {}
             for node in nodes:
                 if node['player'] == player:
-                    terrains = self.board__get_contacting_terrain__(node)
+                    terrains = self.board.__get_contacting_terrain__(node)
                     nodeProb=0
                     arrayTypes = [0,0,0,0,0]
                     for terrain in terrains:
                         terrainType = self.terrain_constants.__get_terrain_type__(terrain_id)
-                        arrayTypes[terrainType] = arrayTypes[terrainType] + self.board.__get_probability__(terrain)
+                        arrayTypes[terrainType] = arrayTypes[terrainType] + self.__CalculateProb__(self.board.__get_probability__(terrain))
                     dictNode[node]=arrayTypes
                     globalDictNode[node]=arrayTypes
                 elif node['player'] == -1:
-                    terrains = self.board__get_contacting_terrain__(node)
+                    terrains = self.board.__get_contacting_terrain__(node)
                     nodeProb=0
                     arrayTypes = [0,0,0,0,0]
                     for terrain in terrains:
                         terrainType = self.terrain_constants.__get_terrain_type__(terrain_id)
-                        arrayTypes[terrainType] = arrayTypes[terrainType] + self.board.__get_probability__(terrain)
+                        arrayTypes[terrainType] = arrayTypes[terrainType] + self.__CalculateProb__(self.board.__get_probability__(terrain))
                     globalDictNode[node]=arrayTypes
             playerDict[player] = dictNode
         return playerDict
+        
+        
+    def __CalculateProb__(self, node_number):
+        if node_number>7:
+            return 13-node_number
+        elif node_number<7:
+            return node_number-1
+        else:
+            return 0
