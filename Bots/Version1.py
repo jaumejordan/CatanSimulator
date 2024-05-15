@@ -43,35 +43,62 @@ class Version1(BotInterface):
     def on_turn_start(self):
         # Si tiene mano de cartas de desarrollo
         if len(self.development_cards_hand.check_hand()):
-
-            knight_cards_id = [card.id for card in self.development_Cards_hand if card.type == DevelopmentCardConstants.KNIGHT]
-
+            
+            knight_cards_id = [card["id"] for card in self.development_cards_hand.check_hand() if card["type"] == DevelopmentCardConstants.KNIGHT]
             if len(knight_cards_id) > 0:
                 # Mirar mis casillas
-                selected_knight_cards_id = random.random(knight_cards_id)
-
+                selected_knight_cards_id = random.sample(knight_cards_id, k=1)
                 #Si solo tenemos una carta de caballero
                 if len(knight_cards_id) == 1:
                     if not self.check_thief_is_in_one_of_my_terrains():
                         return None
 
-                #Sacar la compra objetivo
-                #Sacar el recurso que más necesito
-                #
-                #Else
+                max_material_necesario_idx, max_material_necesario = self.get_max_material_for_compra_objetivo(BuildConstants.TOWN)
+                if max_material_necesario > 0 and not self.any_player_with_the_required_material(max_material_necesario_idx):
+                    return None
+                
                 return self.development_cards_hand.select_card_by_id(selected_knight_cards_id)
 
             
         return None
+    
+    def get_max_material_for_compra_objetivo(self, compra_objetivo):
+        #Sacamos los materiales necesarios
+        _, materiales_necesarios = self.materialesNecesarios(compra_objetivo)
+        #Maximo material necesario y su indice
+        max_material_necesario = 0
+        max_material_necesario_idx = -1
+        #Recorremos los materiales
+        for material_idx in range(len(materiales_necesarios.get_materials())):
+            #Sacamos la cantidad de cada materiall
+            amount_material = materiales_necesarios.get_from_id(material_idx)
+            #Si el material encontrado es mayor que el que tenemos
+            if amount_material > max_material_necesario:
+                #Actualizar indices y variables
+                max_material_necesario_idx = material_idx
+                max_material_necesario = amount_material
+        #Devolver idx y material necesario
+        return max_material_necesario_idx, max_material_necesario
+
+    def any_player_with_the_required_material(self, max_material_idx, p=0.25):        
+        for player_id, other_players_hand in self.player_hand_of_each_player.items():
+            other_players_materials = other_players_hand.resources
+            total_materials = sum(other_players_materials.get_materials())
+            if total_materials == 0:
+                continue
+            if other_players_hand.get_from_id(max_material_idx)  / total_materials > p:
+                return True
+        return False
+        
 
     def check_thief_is_in_one_of_my_terrains(self):
         #Todos nuestros nodos
         player_nodes = [node for node in self.board.nodes if node["player"] == self.id]
         #Todos nuestros terrenos
-        player_terrains = []
+        player_terrains_id = []
         for node in player_nodes:
-            player_terrains.extend(self.board.__get_contacting_terrain__(node["id"]))
-        
+            player_terrains_id.extend(self.board.__get_contacting_terrain__(node["id"]))
+        player_terrains = [self.board.get_terrain_by_id(terrain_id) for terrain_id in player_terrains_id]  
         #si el ladrón está en alguno de nuestros terrenos
         return any([terrain["has_thief"] for terrain in player_terrains])
     
@@ -433,29 +460,28 @@ class Version1(BotInterface):
         return bestNode
     
 
-    def materialesNecesarios(self, buildConstant):
-        if isinstance(materials, str):
-            if materials == 'town':
-                    materials = Materials(1, 0, 1, 1, 1)
-            elif materials == 'city':
-                    materials = Materials(2, 3, 0, 0, 0)
-            elif materials == 'road':
-                    materials = Materials(0, 0, 1, 1, 0)
-            elif materials == 'card':
-                    materials = Materials(1, 1, 0, 0, 1)
-            else:
-                return False
-            arrayObjetivo = buildConstant.array_ids #Puede ser que sea necesario crear un getArrayids
-            arrayActual = self.hand.array_ids
-            diff = [0,0,0,0,0]
-            totalDiff = 0
-            step = 0
-            i = 0
+    def materialesNecesarios(self, buildConstant_type):
+        if buildConstant_type == 'town':
+            materials = Materials(1, 0, 1, 1, 1)
+        elif buildConstant_type == 'city':
+            materials = Materials(2, 3, 0, 0, 0)
+        elif buildConstant_type == 'road':
+            materials = Materials(0, 0, 1, 1, 0)
+        elif buildConstant_type == 'card':
+            materials = Materials(1, 1, 0, 0, 1)
+        else:
+            return False
+        arrayObjetivo = materials.get_materials() #Puede ser que sea necesario crear un getArrayids
+        arrayActual = self.hand.resources.get_materials()
+        diff = [0,0,0,0,0]
+        totalDiff = 0
+        step = 0
+        i = 0
 
-            for i in range(len(arrayObjetivo)):
-                step = arrayActual[i] - arrayObjetivo[i]
-                diff[i] = step
-                if step<0:
-                    totalDiff = totalDiff + step
-            
-            return -totalDiff, Materials(diff[0], diff[1], diff[2], diff[3], diff[4])
+        for i in range(len(arrayObjetivo)):
+            step = arrayActual[i] - arrayObjetivo[i]
+            diff[i] = step
+            if step<0:
+                totalDiff = totalDiff + step
+        
+        return -totalDiff, Materials(diff[0], diff[1], diff[2], diff[3], diff[4])
