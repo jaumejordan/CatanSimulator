@@ -13,9 +13,16 @@ class Materials:
         return
 
     def get_from_id(self, material_constant):
-        self.array_ids = [self.cereal, self.mineral, self.clay, self.wood, self.wool]
+        self.update_array_ids()
         return self.array_ids[material_constant]
 
+    def get_materials(self):
+        self.update_array_ids()
+        return self.array_ids
+
+    def update_array_ids(self):
+        self.array_ids = [self.cereal, self.mineral, self.clay, self.wood, self.wool]
+    
     # adders #####
     def add_cereal(self, amount):
         self.cereal = self.cereal + amount
