@@ -29,7 +29,7 @@ class Version2(BotInterface):
     timeChange = 0.29
     importanciaTiempo = 1
     turnoActual = 0
-    compraObjetivo = None
+    compraObjetivo = BuildConstants.TOWN
     
     def __init__(self, bot_id):
         super().__init__(bot_id)
@@ -68,15 +68,13 @@ class Version2(BotInterface):
                 DevelopmentCardConstants.MONOPOLY_EFFECT
             )
         )
-        CO = BuildConstants.TOWN
-        if self.compraObjetivo is not None: 
-            CO = self.compraObjetivo
-        totlaDiff, _ = self.materialesNecesarios(CO)
+        CO = self.compraObjetivo
+        totalDiff, _ = self.materialesNecesarios(CO)
 
         play_knight_card = (
             self.check_thief_is_in_one_of_my_terrains() * self.PESO_TOCHO
             + self.competitivo
-        ) * (len(knight_cards) > 0) - (totlaDiff / 2) * (
+        ) * (len(knight_cards) > 0) - (totalDiff / 2) * (
             len(progress_cards) > 0 or len(monopoly_cards) > 0
         )
 
@@ -84,49 +82,6 @@ class Version2(BotInterface):
             return self.development_cards_hand.select_card_by_id(knight_cards[0].id)
 
         return None
-
-    def get_max_material_for_compra_objetivo(self, compra_objetivo):
-        # Sacamos los materiales necesarios
-        _, materiales_necesarios = self.materialesNecesarios(compra_objetivo)
-        # Maximo material necesario y su indice
-        max_material_necesario = 0
-        max_material_necesario_idx = -1
-        # Recorremos los materiales
-        for material_idx in range(len(materiales_necesarios.get_materials())):
-            # Sacamos la cantidad de cada materiall
-            amount_material = materiales_necesarios.get_from_id(material_idx)
-            # Si el material encontrado es mayor que el que tenemos
-            if amount_material > max_material_necesario:
-                # Actualizar indices y variables
-                max_material_necesario_idx = material_idx
-                max_material_necesario = amount_material
-        # Devolver idx y material necesario
-        return max_material_necesario_idx, max_material_necesario
-
-    def any_player_with_the_required_material(self, max_material_idx, p=0.25):
-        for player_id, other_players_hand in self.player_hand_of_each_player.items():
-            other_players_materials = other_players_hand.resources
-            total_materials = sum(other_players_materials.get_materials())
-            if total_materials == 0:
-                continue
-            if other_players_hand.get_from_id(max_material_idx) / total_materials > p:
-                return True
-        return False
-
-    def check_thief_is_in_one_of_my_terrains(self):
-        # Todos nuestros nodos
-        player_nodes = [node for node in self.board.nodes if node["player"] == self.id]
-        # Todos nuestros terrenos
-        player_terrains_id = []
-        for node in player_nodes:
-            player_terrains_id.extend(self.board.__get_contacting_terrain__(node["id"]))
-        # Id -> Terrains
-        player_terrains = [
-            self.board.get_terrain_by_id(terrain_id)
-            for terrain_id in player_terrains_id
-        ]
-        # Si el ladrón está en alguno de nuestros terrenos
-        return any([terrain["has_thief"] for terrain in player_terrains])
 
     def on_having_more_than_7_materials_when_thief_is_called(self):
         # Comprueba si tiene materiales para construir una ciudad. Si los tiene, descarta el resto que no le sirvan.
@@ -148,30 +103,22 @@ class Version2(BotInterface):
         return self.hand
 
     def on_moving_thief(self):
-        # Bloquea un número 6 u 8 donde no tenga un pueblo, pero que tenga uno del rival
-        # Si no se dan las condiciones lo deja donde está, lo que hace que el GameManager lo ponga en un lugar aleatorio
         terrain_with_thief_id = -1
-        for terrain in self.board.terrain:
-            if not terrain["has_thief"]:
-                if terrain["probability"] == 6 or terrain["probability"] == 8:
-                    nodes = self.board.__get_contacting_nodes__(terrain["id"])
-                    has_own_town = False
-                    has_enemy_town = False
-                    enemy = -1
-                    for node_id in nodes:
-                        if self.board.nodes[node_id]["player"] == self.id:
-                            has_own_town = True
-                            break
-                        if self.board.nodes[node_id]["player"] != -1:
-                            has_enemy_town = True
-                            enemy = self.board.nodes[node_id]["player"]
+        max_material_id, max_material = self.get_max_material_for_compra_objetivo(self.compraObjetivo)
+        players_hand_materials_with_probability = self.get_probability_for_materials_given_player_hands()
 
-                    if not has_own_town and has_enemy_town:
-                        return {"terrain": terrain["id"], "player": enemy}
-            else:
-                terrain_with_thief_id = terrain["id"]
+        #Crear una EDA dict {terrain_id:puntos}
+        #Sacar dnd más pueda putear
+        #Ver a quien puedo putear más
+        eda = self.__VTE__()
+        terrain_with_thief_id, values_for_putting_thief_here = max(eda.items(), key=lambda x: x[1])
+        player_ids = list(filter(lambda x: x != self.id ,self.board.get_players_adjacent_to_terrain(terrain_with_thief_id)))
 
-        return {"terrain": terrain_with_thief_id, "player": -1}
+
+        target_enemy_players = [(player_id, prob_for_card) for player_id, prob_for_card in players_hand_materials_with_probability.items() if player_id in player_ids]
+
+        target_enemy_player_id, _ = max(target_enemy_players, key=lambda x: x[1][max_material_id])
+        return {"terrain": terrain_with_thief_id, "player": target_enemy_player_id}
 
     def on_turn_end(self):
         # Si tiene mano de cartas de desarrollo
@@ -489,6 +436,29 @@ class Version2(BotInterface):
             dictNode[node] = nodeProb
         return dictNode
 
+
+    def __VTE__(self):
+        terrains = self.board.terrain
+        res = {}
+        for terrain in terrains:
+            prob_for_terrain = self.__CalculateProb__(self.board.__get_probability__(terrain["id"])) #get_prob * cal
+            val = 0
+            #Por cada nodo adjacente a un terreno
+            node_ids_by_terrain_ids = self.board.__get_contacting_nodes__(terrain["id"])
+            nodes = [self.board.get_nodes_by_id(id) for id in node_ids_by_terrain_ids]
+            for node in nodes:
+                mult = 0
+                if node["player"] >= 0:
+                    mult = 1
+                if node["has_city"]:
+                    mult = 2
+                if node["player"] == self.id:
+                    mult = -1 * mult
+                
+                val += mult * prob_for_terrain
+            res[terrain["id"]] = val
+        return res
+
     def __VTPlus__(self, nodes):
         dictNode = {}
         for node in nodes:
@@ -522,12 +492,12 @@ class Version2(BotInterface):
         
         
     def __CalculateProb__(self, node_number):
+        if node_number == 0 or node_number == 7:
+            return 0
         if node_number>7:
             return 13-node_number
         elif node_number<7:
             return node_number-1
-        else:
-            return 0
 
     def __nodeScore__(self, nodeArray, currentArray):
         possible_array =  [x + y for x, y in zip(nodeArray, currentArray)]
@@ -664,3 +634,31 @@ class Version2(BotInterface):
             else:
                 return BuildConstants.ROAD
         
+
+    def get_max_material_for_compra_objetivo(self, compra_objetivo):
+        _, materiales_necesarios = self.materialesNecesarios(compra_objetivo)
+        materiales_necesarios_formato_lista = [(material_id, amount_of_material) for material_id, amount_of_material in enumerate(materiales_necesarios.get_array_ids())]
+        max_material_id, max_material_amount  = max(materiales_necesarios_formato_lista, key= lambda x: x[1])
+        if max_material_amount <= 0:
+            max_material_id = -1
+        return max_material_id, max_material_amount
+
+    def get_probability_for_materials_given_player_hands(self):
+        from_total_to_prob_given_a_hand = lambda lst: [l/sum(lst) for l in lst ] if sum(lst) > 0 else lst
+        return {k:from_total_to_prob_given_a_hand(v.resources.get_array_ids()) for k,v in self.player_hand_of_each_player.items()}
+
+
+    def check_thief_is_in_one_of_my_terrains(self):
+        # Todos nuestros nodos
+        player_nodes = [node for node in self.board.nodes if node["player"] == self.id]
+        # Todos nuestros terrenos
+        player_terrains_id = []
+        for node in player_nodes:
+            player_terrains_id.extend(self.board.__get_contacting_terrain__(node["id"]))
+        # Id -> Terrains
+        player_terrains = [
+            self.board.get_terrain_by_id(terrain_id)
+            for terrain_id in player_terrains_id
+        ]
+        # Si el ladrón está en alguno de nuestros terrenos
+        return any([terrain["has_thief"] for terrain in player_terrains])

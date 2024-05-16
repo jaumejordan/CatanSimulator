@@ -363,7 +363,9 @@ class Board:
             if terrain["id"] == terrain_id:
                 return terrain
         return None
-        
+    
+    def get_nodes_by_id(self, node_id):
+        return [node for node in self.nodes if node["id"] == node_id].pop()
 
     def build_town(self, player, node=-1):
         """
@@ -620,3 +622,14 @@ class Board:
                 return HarborConstants.ALL
 
         return HarborConstants.NONE
+
+    def get_players_adjacent_to_terrain(self, terrain_id):
+        nodes_id = self.__get_contacting_nodes__(terrain_id)
+        nodes = [node for node in self.nodes if node["id"] in nodes_id]
+        players = []
+
+        for node in nodes:
+            #not a real  player...
+            if node["player"] != -1:
+                players.append(node["player"])
+        return players
