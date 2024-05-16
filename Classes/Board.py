@@ -358,6 +358,13 @@ class Board:
         else:
             return HarborConstants.NONE
 
+    def get_terrain_by_id(self, terrain_id):
+        for terrain in self.terrain:
+            if terrain["id"] == terrain_id:
+                return terrain
+        return None
+        
+
     def build_town(self, player, node=-1):
         """
         Permite construir un pueblo por el jugador especificado en el cruce escrito

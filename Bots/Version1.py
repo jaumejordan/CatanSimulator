@@ -12,17 +12,16 @@ class Version1(BotInterface):
     """
     Es necesario poner super().nombre_de_funcion() para asegurarse de que coge la función del padre
     """
-    player_hand_of_each_player = {
-        0: Hand(),
-        1: Hand(),
-        2: Hand(),
-        3: Hand()
-    }
+
+    player_hand_of_each_player = {0: Hand(), 1: Hand(), 2: Hand(), 3: Hand()}
     town_number = 0
     material_given_more_than_three = None
     # Son los materiales más necesarios en construcciones, luego se piden con year of plenty para tener en mano
     year_of_plenty_material_one = MaterialConstants.CEREAL
     year_of_plenty_material_two = MaterialConstants.MINERAL
+    PESO_TOCHO = 10
+
+    competitivo = 1
 
     def __init__(self, bot_id):
         super().__init__(bot_id)
@@ -34,7 +33,9 @@ class Version1(BotInterface):
         :param incoming_trade_offer:
         :return:
         """
-        if incoming_trade_offer.gives.has_this_more_materials(incoming_trade_offer.receives):
+        if incoming_trade_offer.gives.has_this_more_materials(
+            incoming_trade_offer.receives
+        ):
             return True
         else:
             return False
@@ -42,15 +43,79 @@ class Version1(BotInterface):
 
     def on_turn_start(self):
         # Si tiene mano de cartas de desarrollo
-        if len(self.development_cards_hand.check_hand()):
-            # Mira todas las cartas
-            for i in range(0, len(self.development_cards_hand.check_hand())):
-                # Si una es un caballero
-                #Añadir comprobacion de solo jugarla si el ladron esta en tu territorio, o si está pero tienes más de 1 caballero o si con ello ganas. 
-                if self.development_cards_hand.hand[i].type == DevelopmentCardConstants.KNIGHT:
-                    # La juega
-                    return self.development_cards_hand.select_card_by_id(self.development_cards_hand.hand[i].id)
+        if len(self.development_cards_hand.check_hand()) == 0:
+            return None
+
+        knight_cards = self.development_cards_hand.select_cards_by_development_card_type(
+            DevelopmentCardConstants.KNIGHT_EFFECT
+        )
+        progress_cards = (
+            self.development_cards_hand.select_cards_by_development_card_type(
+                DevelopmentCardConstants.YEAR_OF_PLENTY_EFFECT
+            )
+        )
+        monopoly_cards = (
+            self.development_cards_hand.select_cards_by_development_card_type(
+                DevelopmentCardConstants.MONOPOLY_EFFECT
+            )
+        )
+
+        totlaDiff, _ = self.materialesNecesarios(BuildConstants.TOWN)
+
+        play_knight_card = (
+            self.check_thief_is_in_one_of_my_terrains() * self.PESO_TOCHO
+            + self.competitivo
+        ) * (len(knight_cards) > 0) - (totlaDiff / 2) * (
+            len(progress_cards) > 0 or len(monopoly_cards) > 0
+        )
+
+        if play_knight_card > 0:
+            return self.development_cards_hand.select_card_by_id(knight_cards[0].id)
+
         return None
+
+    def get_max_material_for_compra_objetivo(self, compra_objetivo):
+        # Sacamos los materiales necesarios
+        _, materiales_necesarios = self.materialesNecesarios(compra_objetivo)
+        # Maximo material necesario y su indice
+        max_material_necesario = 0
+        max_material_necesario_idx = -1
+        # Recorremos los materiales
+        for material_idx in range(len(materiales_necesarios.get_materials())):
+            # Sacamos la cantidad de cada materiall
+            amount_material = materiales_necesarios.get_from_id(material_idx)
+            # Si el material encontrado es mayor que el que tenemos
+            if amount_material > max_material_necesario:
+                # Actualizar indices y variables
+                max_material_necesario_idx = material_idx
+                max_material_necesario = amount_material
+        # Devolver idx y material necesario
+        return max_material_necesario_idx, max_material_necesario
+
+    def any_player_with_the_required_material(self, max_material_idx, p=0.25):
+        for player_id, other_players_hand in self.player_hand_of_each_player.items():
+            other_players_materials = other_players_hand.resources
+            total_materials = sum(other_players_materials.get_materials())
+            if total_materials == 0:
+                continue
+            if other_players_hand.get_from_id(max_material_idx) / total_materials > p:
+                return True
+        return False
+
+    def check_thief_is_in_one_of_my_terrains(self):
+        # Todos nuestros nodos
+        player_nodes = [node for node in self.board.nodes if node["player"] == self.id]
+        # Todos nuestros terrenos
+        player_terrains_id = []
+        for node in player_nodes:
+            player_terrains_id.extend(self.board.__get_contacting_terrain__(node["id"]))
+        # Id -> Terrains
+        player_terrains = [
+            self.board.get_terrain_by_id(terrain_id)
+            for terrain_id in player_terrains_id
+        ]
+        # Si el ladrón está en alguno de nuestros terrenos
+        return any([terrain["has_thief"] for terrain in player_terrains])
 
     def on_having_more_than_7_materials_when_thief_is_called(self):
         # Comprueba si tiene materiales para construir una ciudad. Si los tiene, descarta el resto que no le sirvan.
@@ -76,26 +141,26 @@ class Version1(BotInterface):
         # Si no se dan las condiciones lo deja donde está, lo que hace que el GameManager lo ponga en un lugar aleatorio
         terrain_with_thief_id = -1
         for terrain in self.board.terrain:
-            if not terrain['has_thief']:
-                if terrain['probability'] == 6 or terrain['probability'] == 8:
-                    nodes = self.board.__get_contacting_nodes__(terrain['id'])
+            if not terrain["has_thief"]:
+                if terrain["probability"] == 6 or terrain["probability"] == 8:
+                    nodes = self.board.__get_contacting_nodes__(terrain["id"])
                     has_own_town = False
                     has_enemy_town = False
                     enemy = -1
                     for node_id in nodes:
-                        if self.board.nodes[node_id]['player'] == self.id:
+                        if self.board.nodes[node_id]["player"] == self.id:
                             has_own_town = True
                             break
-                        if self.board.nodes[node_id]['player'] != -1:
+                        if self.board.nodes[node_id]["player"] != -1:
                             has_enemy_town = True
-                            enemy = self.board.nodes[node_id]['player']
+                            enemy = self.board.nodes[node_id]["player"]
 
                     if not has_own_town and has_enemy_town:
-                        return {'terrain': terrain['id'], 'player': enemy}
+                        return {"terrain": terrain["id"], "player": enemy}
             else:
-                terrain_with_thief_id = terrain['id']
+                terrain_with_thief_id = terrain["id"]
 
-        return {'terrain': terrain_with_thief_id, 'player': -1}
+        return {"terrain": terrain_with_thief_id, "player": -1}
 
     def on_turn_end(self):
         # Si tiene mano de cartas de desarrollo
@@ -103,9 +168,14 @@ class Version1(BotInterface):
             # Mira todas las cartas
             for i in range(0, len(self.development_cards_hand.check_hand())):
                 # Si una es un punto de victoria
-                if self.development_cards_hand.hand[i].type == DevelopmentCardConstants.VICTORY_POINT:
+                if (
+                    self.development_cards_hand.hand[i].type
+                    == DevelopmentCardConstants.VICTORY_POINT
+                ):
                     # La juega
-                    return self.development_cards_hand.select_card_by_id(self.development_cards_hand.hand[i].id)
+                    return self.development_cards_hand.select_card_by_id(
+                        self.development_cards_hand.hand[i].id
+                    )
         return None
 
     def on_commerce_phase(self):
@@ -118,15 +188,22 @@ class Version1(BotInterface):
                 # Mira todas las cartas
                 for i in range(0, len(self.development_cards_hand.check_hand())):
                     # Si una es un punto de monopolio
-                    if self.development_cards_hand.hand[i].effect == DevelopmentCardConstants.MONOPOLY_EFFECT:
+                    if (
+                        self.development_cards_hand.hand[i].effect
+                        == DevelopmentCardConstants.MONOPOLY_EFFECT
+                    ):
                         # La juega
-                        return self.development_cards_hand.select_card_by_id(self.development_cards_hand.hand[i].id)
+                        return self.development_cards_hand.select_card_by_id(
+                            self.development_cards_hand.hand[i].id
+                        )
 
         gives = Materials()
         receives = Materials()
 
         # No pide nada porque puede hacer una ciudad
-        if self.town_number >= 1 and self.hand.resources.has_this_more_materials(BuildConstants.CITY):
+        if self.town_number >= 1 and self.hand.resources.has_this_more_materials(
+            BuildConstants.CITY
+        ):
             self.material_given_more_than_three = None
             return None
         # Pedir lo que falte para una ciudad, ofrece el resto de materiales iguales a los que pide
@@ -143,7 +220,11 @@ class Version1(BotInterface):
                 materials_to_give = [0, 0, 0, 0, 0]
                 for i in range(0, total_given_materials):
                     # Se mezcla el orden de materiales
-                    order = [MaterialConstants.CLAY, MaterialConstants.WOOD, MaterialConstants.WOOL]
+                    order = [
+                        MaterialConstants.CLAY,
+                        MaterialConstants.WOOD,
+                        MaterialConstants.WOOL,
+                    ]
                     random.shuffle(order)
                     # una vez mezclado se recorre el orden de los materiales y se coge el primero que tenga un valor
                     for mat in order:
@@ -151,8 +232,13 @@ class Version1(BotInterface):
                             self.hand.remove_material(mat, 1)
                             materials_to_give[mat] += 1
                             break
-                gives = Materials(materials_to_give[0], materials_to_give[1], materials_to_give[2],
-                                  materials_to_give[3], materials_to_give[4])
+                gives = Materials(
+                    materials_to_give[0],
+                    materials_to_give[1],
+                    materials_to_give[2],
+                    materials_to_give[3],
+                    materials_to_give[4],
+                )
 
             # Si no hay más materiales que los pedidos, simplemente se prueba a entregar todos lo que se tenga en mano
             else:
@@ -190,20 +276,38 @@ class Version1(BotInterface):
                 #   pero guardándose al menos 1 de cada uno de los necesarios para hacer un pueblo
                 for j in range(0, number_of_materials_received):
                     # Se mezcla el orden de materiales
-                    order = [MaterialConstants.CEREAL, MaterialConstants.MINERAL, MaterialConstants.CLAY,
-                             MaterialConstants.WOOD, MaterialConstants.WOOL]
+                    order = [
+                        MaterialConstants.CEREAL,
+                        MaterialConstants.MINERAL,
+                        MaterialConstants.CLAY,
+                        MaterialConstants.WOOD,
+                        MaterialConstants.WOOL,
+                    ]
                     random.shuffle(order)
                     # una vez mezclado se recorre el orden de los materiales y se coge el primero que tenga un valor
                     for mat in order:
-                        if self.hand.resources.get_from_id(mat) > 1 or mat == MaterialConstants.MINERAL:
+                        if (
+                            self.hand.resources.get_from_id(mat) > 1
+                            or mat == MaterialConstants.MINERAL
+                        ):
                             self.hand.remove_material(mat, 1)
                             materials_to_give[mat] += 1
                             break
 
-                gives = Materials(materials_to_give[0], materials_to_give[1], materials_to_give[2],
-                                  materials_to_give[3], materials_to_give[4])
-                receives = Materials(materials_to_receive[0], materials_to_receive[1], materials_to_receive[2],
-                                     materials_to_receive[3], materials_to_receive[4])
+                gives = Materials(
+                    materials_to_give[0],
+                    materials_to_give[1],
+                    materials_to_give[2],
+                    materials_to_give[3],
+                    materials_to_give[4],
+                )
+                receives = Materials(
+                    materials_to_receive[0],
+                    materials_to_receive[1],
+                    materials_to_receive[2],
+                    materials_to_receive[3],
+                    materials_to_receive[4],
+                )
 
         trade_offer = TradeOffer(gives, receives)
         return trade_offer
@@ -221,38 +325,51 @@ class Version1(BotInterface):
                 road_possibilities = self.board.valid_road_nodes(self.id)
 
                 # Si una es año de la cosecha o construir carreteras y hay al menos 2 carreteras disponibles a construir
-                if (self.development_cards_hand.hand[i].effect == DevelopmentCardConstants.YEAR_OF_PLENTY_EFFECT or
-                        (self.development_cards_hand.hand[i].effect == DevelopmentCardConstants.ROAD_BUILDING_EFFECT and
-                         len(road_possibilities) > 1)):
+                if self.development_cards_hand.hand[
+                    i
+                ].effect == DevelopmentCardConstants.YEAR_OF_PLENTY_EFFECT or (
+                    self.development_cards_hand.hand[i].effect
+                    == DevelopmentCardConstants.ROAD_BUILDING_EFFECT
+                    and len(road_possibilities) > 1
+                ):
                     # La juega
-                    return self.development_cards_hand.select_card_by_id(self.development_cards_hand.hand[i].id)
+                    return self.development_cards_hand.select_card_by_id(
+                        self.development_cards_hand.hand[i].id
+                    )
 
-        if self.hand.resources.has_this_more_materials(BuildConstants.CITY) and self.town_number > 0:
+        if (
+            self.hand.resources.has_this_more_materials(BuildConstants.CITY)
+            and self.town_number > 0
+        ):
             possibilities = self.board.valid_city_nodes(self.id)
             for node_id in possibilities:
-                for terrain_piece_id in self.board.nodes[node_id]['contacting_terrain']:
+                for terrain_piece_id in self.board.nodes[node_id]["contacting_terrain"]:
                     # Hacemos una ciudad solo si la probabilidad de que salga el número es mayor o igual a 4/36
-                    if self.board.terrain[terrain_piece_id]['probability'] == 5 or \
-                            self.board.terrain[terrain_piece_id]['probability'] == 6 or \
-                            self.board.terrain[terrain_piece_id]['probability'] == 8 or \
-                            self.board.terrain[terrain_piece_id]['probability'] == 9:
+                    if (
+                        self.board.terrain[terrain_piece_id]["probability"] == 5
+                        or self.board.terrain[terrain_piece_id]["probability"] == 6
+                        or self.board.terrain[terrain_piece_id]["probability"] == 8
+                        or self.board.terrain[terrain_piece_id]["probability"] == 9
+                    ):
                         self.town_number -= 1  # Transformamos un pueblo en una ciudad
-                        return {'building': BuildConstants.CITY, 'node_id': node_id}
+                        return {"building": BuildConstants.CITY, "node_id": node_id}
 
         if self.hand.resources.has_this_more_materials(BuildConstants.TOWN):
             possibilities = self.board.valid_town_nodes(self.id)
             for node_id in possibilities:
-                for terrain_piece_id in self.board.nodes[node_id]['contacting_terrain']:
+                for terrain_piece_id in self.board.nodes[node_id]["contacting_terrain"]:
                     # Hacemos un pueblo solo si la probabilidad de que salga el número es mayor o igual a 3/36
                     # O si el nodo es costero y posee un puerto
-                    if self.board.terrain[terrain_piece_id]['probability'] == 4 or \
-                            self.board.terrain[terrain_piece_id]['probability'] == 5 or \
-                            self.board.terrain[terrain_piece_id]['probability'] == 6 or \
-                            self.board.terrain[terrain_piece_id]['probability'] == 8 or \
-                            self.board.terrain[terrain_piece_id]['probability'] == 9 or \
-                            self.board.terrain[terrain_piece_id]['probability'] == 10:
+                    if (
+                        self.board.terrain[terrain_piece_id]["probability"] == 4
+                        or self.board.terrain[terrain_piece_id]["probability"] == 5
+                        or self.board.terrain[terrain_piece_id]["probability"] == 6
+                        or self.board.terrain[terrain_piece_id]["probability"] == 8
+                        or self.board.terrain[terrain_piece_id]["probability"] == 9
+                        or self.board.terrain[terrain_piece_id]["probability"] == 10
+                    ):
                         self.town_number += 1  # Añadimos un pueblo creado
-                        return {'building': BuildConstants.TOWN, 'node_id': node_id}
+                        return {"building": BuildConstants.TOWN, "node_id": node_id}
 
         if self.hand.resources.has_this_more_materials(BuildConstants.ROAD):
             # Construye sí o sí carretera si acaba en un nodo costero, pero, ¿y si no lo busca aleatoriamente?
@@ -265,11 +382,16 @@ class Version1(BotInterface):
             # TODO: Sería ideal que funcionase pero hay poco tiempo, que coja una aleatoria, pero si es costero y tiene puerto lo coge siempre
             possibilities = self.board.valid_road_nodes(self.id)
             for road_obj in possibilities:
-                if self.board.is_it_a_coastal_node(road_obj['finishing_node']) and \
-                        self.board.nodes[road_obj['finishing_node']]['harbor'] != HarborConstants.NONE:
-                    return {'building': BuildConstants.ROAD,
-                            'node_id': road_obj['starting_node'],
-                            'road_to': road_obj['finishing_node']}
+                if (
+                    self.board.is_it_a_coastal_node(road_obj["finishing_node"])
+                    and self.board.nodes[road_obj["finishing_node"]]["harbor"]
+                    != HarborConstants.NONE
+                ):
+                    return {
+                        "building": BuildConstants.ROAD,
+                        "node_id": road_obj["starting_node"],
+                        "road_to": road_obj["finishing_node"],
+                    }
 
             # Asumiendo que no hay ninguna ideal (es decir, robarse los puertos),
             #   construye una carretera aleatoria, el 60% de las veces
@@ -277,22 +399,24 @@ class Version1(BotInterface):
             if will_build:
                 if len(possibilities):
                     road_node = random.randint(0, len(possibilities) - 1)
-                    return {'building': BuildConstants.ROAD,
-                            'node_id': possibilities[road_node]['starting_node'],
-                            'road_to': possibilities[road_node]['finishing_node']}
+                    return {
+                        "building": BuildConstants.ROAD,
+                        "node_id": possibilities[road_node]["starting_node"],
+                        "road_to": possibilities[road_node]["finishing_node"],
+                    }
 
         # Si tiene materiales para hacer una carta, la construye. Como va la última en la pila,
         #    ya habrá construido cualquier otra cosa más útil
         if self.hand.resources.has_this_more_materials(BuildConstants.CARD):
-            return {'building': BuildConstants.CARD}
+            return {"building": BuildConstants.CARD}
 
         return None
 
 
     def on_game_start(self,  board_instance): #VT version
 
-        #VT o VT+ o VTT+
-        # Plantar en la casilla de más valor disponible 
+        # VT o VT+ o VTT+
+        # Plantar en la casilla de más valor disponible
         self.board = board_instance
         possibilities = self.board.valid_starting_nodes()
         currentArrayTerrain = self.__CR__(self.board.nodes)[self.id]
@@ -308,7 +432,7 @@ class Version1(BotInterface):
 
     def update_hand_from_a_given_player_id(self, player_id: int, player_hand: Hand):
         self.player_hand_of_each_player[player_id] = player_hand
-    
+
     # noinspection DuplicatedCode
     def on_road_building_card_use(self):
         # Elige dos carreteras aleatorias entre las opciones
@@ -320,32 +444,39 @@ class Version1(BotInterface):
                 road_node = random.randint(0, len(valid_nodes) - 1)
                 road_node_2 = random.randint(0, len(valid_nodes) - 1)
                 if road_node != road_node_2:
-                    return {'node_id': valid_nodes[road_node]['starting_node'],
-                            'road_to': valid_nodes[road_node]['finishing_node'],
-                            'node_id_2': valid_nodes[road_node_2]['starting_node'],
-                            'road_to_2': valid_nodes[road_node_2]['finishing_node'],
-                            }
-        elif len(valid_nodes) == 1:
-            return {'node_id': valid_nodes[0]['starting_node'],
-                    'road_to': valid_nodes[0]['finishing_node'],
-                    'node_id_2': None,
-                    'road_to_2': None,
+                    return {
+                        "node_id": valid_nodes[road_node]["starting_node"],
+                        "road_to": valid_nodes[road_node]["finishing_node"],
+                        "node_id_2": valid_nodes[road_node_2]["starting_node"],
+                        "road_to_2": valid_nodes[road_node_2]["finishing_node"],
                     }
+        elif len(valid_nodes) == 1:
+            return {
+                "node_id": valid_nodes[0]["starting_node"],
+                "road_to": valid_nodes[0]["finishing_node"],
+                "node_id_2": None,
+                "road_to_2": None,
+            }
         return None
 
     def on_year_of_plenty_card_use(self):
-        return {'material': self.year_of_plenty_material_one, 'material_2': self.year_of_plenty_material_two}
-        
+        return {
+            "material": self.year_of_plenty_material_one,
+            "material_2": self.year_of_plenty_material_two,
+        }
+
     def __VT__(self, nodes):
         dictNode = {}
         for node in nodes:
-            terrains = self.board.__get_contacting_terrain__( node)
-            nodeProb=0
+            terrains = self.board.__get_contacting_terrain__(node)
+            nodeProb = 0
             for terrain in terrains:
-                nodeProb = nodeProb + self.__CalculateProb__(self.board.__get_probability__(terrain))
-            dictNode[node]=nodeProb
+                nodeProb = nodeProb + self.__CalculateProb__(
+                    self.board.__get_probability__(terrain)
+                )
+            dictNode[node] = nodeProb
         return dictNode
-    
+
     def __VTPlus__(self, nodes):
         dictNode = {}
         for node in nodes:
@@ -408,3 +539,41 @@ class Version1(BotInterface):
                 bestScore = score
                 bestNode = node
         return bestNode
+    
+
+    def materialesNecesarios(self, buildConstant_type):
+        """Dado un string, te indica los materiales que te faltan de cada tipo para
+            completar la compra
+
+        Args:
+            buildConstant_type (str): Str proveniente de DevelopmentCardConstants
+
+        Returns:
+            tuple: (Total diff, Materiales que me faltan)
+        """
+        if buildConstant_type == "town":
+            materials = Materials(1, 0, 1, 1, 1)
+        elif buildConstant_type == "city":
+            materials = Materials(2, 3, 0, 0, 0)
+        elif buildConstant_type == "road":
+            materials = Materials(0, 0, 1, 1, 0)
+        elif buildConstant_type == "card":
+            materials = Materials(1, 1, 0, 0, 1)
+        else:
+            return False
+        arrayObjetivo = (
+            materials.get_array_ids()
+        )  # Puede ser que sea necesario crear un getArrayids
+        arrayActual = self.hand.resources.get_array_ids()
+        diff = [0, 0, 0, 0, 0]
+        totalDiff = 0
+        step = 0
+        i = 0
+
+        for i in range(len(arrayObjetivo)):
+            step = arrayActual[i] - arrayObjetivo[i]
+            diff[i] = step
+            if step < 0:
+                totalDiff = totalDiff + step
+
+        return -totalDiff, Materials(diff[0], diff[1], diff[2], diff[3], diff[4])
