@@ -16,7 +16,7 @@ class Materials:
         self.update_array_ids()
         return self.array_ids[material_constant]
 
-    def get_materials(self):
+    def get_array_ids(self):
         self.update_array_ids()
         return self.array_ids
 
