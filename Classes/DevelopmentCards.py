@@ -148,3 +148,6 @@ class DevelopmentCardsHand:
                 rest_of_hand.append(card)
         self.hand = rest_of_hand
         return
+
+    def select_cards_by_development_card_type(self, development_card_type):
+        return [card for card in self.hand if card.type == development_card_type]
