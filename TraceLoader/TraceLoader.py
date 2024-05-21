@@ -1,6 +1,6 @@
 # from TraceLoader.Interpreter import Interpreter
 import json
-import os.path
+from pathlib import Path
 from datetime import datetime
 
 
@@ -10,21 +10,12 @@ class TraceLoader:
     full_path = ''
 
     def __init__(self):
-        # Si no existe la carpeta "Traces" la crea
-        absolute_path = os.path.dirname(__file__)
-        relative_path = "..\\Traces"
-        traces_path = os.path.join(absolute_path, relative_path)
-        if not os.path.exists(traces_path):
-            os.makedirs(traces_path)
-
         # Cogemos el día y hora para ponerle el nombre a la carpeta a crear en trazas
-        today = str(datetime.today()).replace(':', '_')
-
         # Creamos la carpeta del día y hora de hoy para guardar todas las trazas ahí
-        absolute_path = os.path.dirname(__file__)
-        relative_path = "..\\Traces\\" + today
-        self.full_path = os.path.join(absolute_path, relative_path)
-        os.makedirs(self.full_path)
+        # Si no existe la carpeta "Traces" la crea
+        today = datetime.today().strftime('%Y-%m-%d_%H-%M-%S')
+        self.full_path = Path(__file__).parent / "Traces" / today
+        self.full_path.mkdir(parents=True)
         return
 
     def export_to_file(self, game_number):
@@ -34,7 +25,8 @@ class TraceLoader:
         """
 
         json_obj = json.dumps(self.current_trace)
-        with open(self.full_path + '\\game_' + str(game_number) + '.json', 'w') as outfile:
+        file_path = self.full_path / ("game_" + str(game_number) + '.json')
+        with open(file_path, 'w') as outfile:
             outfile.write(json_obj)
 
         # Se añade la traza al json con todas las trazas
@@ -47,7 +39,8 @@ class TraceLoader:
         :return: None
         """
         json_obj = json.dumps(self.all_games_trace)
-        with open(self.full_path + '\\games' + '.json', 'w') as outfile:
+        file_path = self.full_path / "games.json"
+        with open(file_path, 'w') as outfile:
             outfile.write(json_obj)
 
         # Se resetea la variable una vez se ha exportado
